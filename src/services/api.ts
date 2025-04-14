@@ -8,6 +8,7 @@ import {
   ManufacturerCreate, 
   CreateResponse 
 } from '@/types/api';
+import { DrugUI } from '@/types/drug';
 
 const API_URL = 'http://localhost:5000';
 
@@ -113,24 +114,31 @@ export const manufacturerApi = {
 };
 
 // API mapping helpers
-export const mapDrugFullToUI = (drug: DrugFull): any => {
+export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
   // Transform API drug model to UI model
-  // This is a placeholder - in a real app you'd map API data to UI model
   return {
     id: drug.DrugID.toString(),
     name: drug.Name,
-    category: drug.Class,
-    description: drug.History.substring(0, 100) + '...',
+    category: drug.Class || 'Unclassified',
+    description: drug.History || 'No description available',
     mechanismOfAction: 'Information not available in API',
     indications: ['Information not available in API'],
     contraindications: ['Information not available in API'],
     sideEffects: [
-      // Placeholder until API provides structured side effects
-      { name: drug.SideEffects.split('...')[0] || 'Unknown', severity: 'moderate' as const, frequency: 'Common' }
+      // Parse side effects if available
+      { 
+        name: drug.SideEffects?.split('.')[0] || 'Unknown', 
+        severity: 'moderate' as const, 
+        frequency: 'Common' 
+      }
     ],
     interactions: [
       // Placeholder until API provides structured interactions
-      { drug: 'Unknown', effect: 'Information not available', severity: 'mild' as const }
+      { 
+        drug: 'Unknown', 
+        effect: 'Information not available', 
+        severity: 'mild' as const 
+      }
     ],
     dosages: [
       // Placeholder until API provides structured dosages

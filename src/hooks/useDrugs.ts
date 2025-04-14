@@ -9,8 +9,10 @@ export const useAllDrugs = () => {
   return useQuery({
     queryKey: ['drugs'],
     queryFn: drugApi.getAllDrugs,
-    onError: (error) => {
-      toast.error(`Failed to fetch drugs: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    meta: {
+      onError: (error: Error) => {
+        toast.error(`Failed to fetch drugs: ${error.message || 'Unknown error'}`);
+      }
     }
   });
 };
@@ -22,8 +24,10 @@ export const useDrugDetails = (drugId: number | undefined) => {
     queryFn: () => drugId ? drugApi.getDrugById(drugId) : Promise.reject('No drug ID provided'),
     enabled: !!drugId,
     select: (data) => mapDrugFullToUI(data),
-    onError: (error) => {
-      toast.error(`Failed to fetch drug details: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    meta: {
+      onError: (error: Error) => {
+        toast.error(`Failed to fetch drug details: ${error.message || 'Unknown error'}`);
+      }
     }
   });
 };
@@ -82,8 +86,10 @@ export const useAllManufacturers = () => {
   return useQuery({
     queryKey: ['manufacturers'],
     queryFn: manufacturerApi.getAllManufacturers,
-    onError: (error) => {
-      toast.error(`Failed to fetch manufacturers: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    meta: {
+      onError: (error: Error) => {
+        toast.error(`Failed to fetch manufacturers: ${error.message || 'Unknown error'}`);
+      }
     }
   });
 };

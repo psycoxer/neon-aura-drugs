@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -22,7 +21,6 @@ const DrugDetailPage: React.FC = () => {
           <p className="text-muted-foreground">
             This page would contain a form to create a new drug entry.
           </p>
-          {/* In a real application, we would have a form here to create a new drug */}
           <Button onClick={() => navigate('/')} variant="outline">
             Back to Dashboard
           </Button>
