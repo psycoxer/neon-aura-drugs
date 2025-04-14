@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import SearchBar from '@/components/SearchBar';
@@ -129,8 +129,8 @@ const SearchPage: React.FC = () => {
                 id={drug.DrugID.toString()}
                 name={drug.Name}
                 category={drug.Class || 'Unclassified'}
-                primaryMolecule={drug.PrimaryMolecule || 'Unknown'}
-                moleculeCount={drug.MoleculeCount || 0}
+                primaryMolecule={drug.PrimaryMolecule}
+                moleculeCount={drug.MoleculeCount}
               />
             ))}
           </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/Layout';
 import SearchBar from '@/components/SearchBar';
@@ -23,9 +24,12 @@ const Index: React.FC = () => {
   const mapDrugToCard = (drug: DrugListItem) => ({
     id: drug.DrugID.toString(),
     name: drug.Name,
-    category: drug.Class,
-    description: `Primary molecule: ${drug.PrimaryMolecule}. This drug contains ${drug.MoleculeCount} active molecules.`,
-    warning: drug.Class.toLowerCase().includes('nsaid') || drug.Class.toLowerCase().includes('opioid'),
+    category: drug.Class || 'Unclassified',
+    primaryMolecule: drug.PrimaryMolecule || 'Unknown',
+    moleculeCount: drug.MoleculeCount || 0,
+    // Add a safety check for Class property when determining warning
+    warning: (drug.Class && drug.Class.toLowerCase().includes('nsaid')) || 
+             (drug.Class && drug.Class.toLowerCase().includes('opioid')),
     interactions: Math.floor(Math.random() * 20) // Placeholder - the API doesn't provide this info
   });
 
@@ -109,6 +113,7 @@ const Index: React.FC = () => {
       );
     }
 
+    // Add a safety check before mapping drugs
     const drugData = drugs?.map(mapDrugToCard) || mockDrugs;
     
     return (
@@ -170,7 +175,7 @@ const Index: React.FC = () => {
           />
           <StatCard 
             title="Categories" 
-            value={drugs ? new Set(drugs.map(d => d.Class)).size.toString() : "Loading..."} 
+            value={drugs ? new Set(drugs.map(d => d.Class || 'Unclassified')).size.toString() : "Loading..."} 
             icon={<Pill size={20} className="text-neon-blue" />}
             glowColor="blue"
           />

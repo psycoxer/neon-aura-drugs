@@ -6,11 +6,13 @@ import { cn } from '@/lib/utils';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-interface DrugCardProps {
+export interface DrugCardProps {
   id: string;
   name: string;
   category: string;
-  description: string;
+  primaryMolecule?: string;
+  moleculeCount?: number;
+  description?: string;
   warning?: boolean;
   interactions?: number;
 }
@@ -20,9 +22,17 @@ const DrugCard: React.FC<DrugCardProps> = ({
   name,
   category,
   description,
+  primaryMolecule,
+  moleculeCount,
   warning = false,
   interactions = 0
 }) => {
+  // Create a description based on either the provided description or molecule information
+  const cardDescription = description || 
+    (primaryMolecule ? 
+      `Primary molecule: ${primaryMolecule}${moleculeCount ? `. This drug contains ${moleculeCount} active molecules.` : ''}` : 
+      'No description available');
+
   return (
     <Card className="glass-morphism overflow-hidden group transition-all duration-300 hover:shadow-lg hover:shadow-neon-purple/10 border-white/10">
       <div className="p-5">
@@ -38,7 +48,7 @@ const DrugCard: React.FC<DrugCardProps> = ({
           )}
         </div>
         
-        <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{description}</p>
+        <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{cardDescription}</p>
         
         <div className="flex justify-between items-center">
           {interactions > 0 ? (
