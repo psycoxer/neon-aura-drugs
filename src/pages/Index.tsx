@@ -121,7 +121,9 @@ const Index: React.FC = () => {
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Recently Updated</h2>
-            <Button variant="link" className="text-neon-purple">View All</Button>
+            <Button variant="link" className="text-neon-purple" asChild>
+              <Link to="/drugs">View All</Link>
+            </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {drugData.slice(0, 3).map(drug => (
@@ -135,7 +137,9 @@ const Index: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Commonly Searched</h2>
-            <Button variant="link" className="text-neon-purple">View All</Button>
+            <Button variant="link" className="text-neon-purple" asChild>
+              <Link to="/drugs">View All</Link>
+            </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {drugData.slice(Math.max(0, drugData.length - 3)).map(drug => (

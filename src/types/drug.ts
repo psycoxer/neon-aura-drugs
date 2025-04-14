@@ -34,4 +34,8 @@ export interface DrugUI {
   pregnancy: string;
   halfLife: string;
   prescriptionRequired: boolean;
+  // New fields for API data
+  manufacturer?: string;
+  molecules?: string;
+  origin?: string;
 }

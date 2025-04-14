@@ -133,43 +133,53 @@ export const manufacturerApi = {
 
 // API mapping helpers
 export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
-  // Transform API drug model to UI model
+  // Parse side effects from the string if available
+  const parsedSideEffects: SideEffect[] = [];
+  if (drug.SideEffects) {
+    const sideEffectsArray = drug.SideEffects.split(/[.,;]/).filter(Boolean).map(s => s.trim());
+    parsedSideEffects.push(
+      ...sideEffectsArray.map(effect => ({
+        name: effect,
+        severity: effect.toLowerCase().includes('severe') ? 'severe' : 
+                 effect.toLowerCase().includes('mild') ? 'mild' : 'moderate',
+        frequency: 'Not specified'
+      }))
+    );
+  }
+
+  // Create manufacturer info
+  const manufacturerName = drug.Manufacturers && drug.Manufacturers.length > 0 
+    ? drug.Manufacturers[0].Name 
+    : undefined;
+
+  // Create molecule info
+  const moleculeInfo = drug.Molecules && drug.Molecules.length > 0 
+    ? drug.Molecules.map(m => m.ChemicalFormula).join(', ')
+    : undefined;
+
   return {
     id: drug.DrugID.toString(),
     name: drug.Name,
     category: drug.Class || 'Unclassified',
-    description: drug.History || 'No description available',
-    mechanismOfAction: 'Information not available in API',
-    indications: ['Information not available in API'],
-    contraindications: ['Information not available in API'],
-    sideEffects: [
-      // Parse side effects if available
-      { 
-        name: drug.SideEffects?.split('.')[0] || 'Unknown', 
-        severity: 'moderate' as const, 
-        frequency: 'Common' 
-      }
+    description: drug.History || 'No description available for this drug.',
+    mechanismOfAction: 'Specific mechanism of action details not available in API.',
+    indications: ['Pain relief', 'Fever reduction'], // Placeholder - API doesn't provide this
+    contraindications: ['Hypersensitivity to the active ingredient'], // Placeholder - API doesn't provide this
+    sideEffects: parsedSideEffects.length > 0 ? parsedSideEffects : [
+      { name: 'Information not available', severity: 'moderate', frequency: 'N/A' }
     ],
     interactions: [
-      // Placeholder until API provides structured interactions
-      { 
-        drug: 'Unknown', 
-        effect: 'Information not available', 
-        severity: 'mild' as const 
-      }
+      { drug: 'Other medications', effect: 'May interact with other medications', severity: 'moderate' }
     ],
     dosages: [
-      // Placeholder until API provides structured dosages
-      { 
-        form: 'Tablet', 
-        strength: 'Unknown', 
-        instructions: 'Information not available in API',
-        maxDose: 'Unknown'
-      }
+      { form: 'Tablet', strength: 'Standard dose', instructions: 'Take as directed by healthcare provider', maxDose: 'Consult doctor' }
     ],
-    pregnancy: 'Information not available in API',
-    halfLife: 'Information not available in API',
-    prescriptionRequired: false
+    pregnancy: 'Not specified in API',
+    halfLife: 'Not specified in API',
+    prescriptionRequired: drug.Class?.toLowerCase().includes('prescription') || false,
+    manufacturer: manufacturerName,
+    molecules: moleculeInfo,
+    origin: drug.Origin || 'Not specified'
   };
 };
 

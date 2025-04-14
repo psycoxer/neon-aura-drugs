@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DrugDetailPage from "./pages/DrugDetailPage";
 import SearchPage from "./pages/SearchPage";
+import ViewAllDrugsPage from "./pages/ViewAllDrugsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/drug/:id" element={<DrugDetailPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/drugs" element={<ViewAllDrugsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
