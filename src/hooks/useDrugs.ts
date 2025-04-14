@@ -9,6 +9,7 @@ export const useAllDrugs = () => {
   return useQuery({
     queryKey: ['drugs'],
     queryFn: drugApi.getAllDrugs,
+    retry: 1,
     meta: {
       onError: (error: Error) => {
         toast.error(`Failed to fetch drugs: ${error.message || 'Unknown error'}`);
@@ -23,6 +24,7 @@ export const useDrugDetails = (drugId: number | undefined) => {
     queryKey: ['drug', drugId],
     queryFn: () => drugId ? drugApi.getDrugById(drugId) : Promise.reject('No drug ID provided'),
     enabled: !!drugId,
+    retry: 1,
     select: (data) => mapDrugFullToUI(data),
     meta: {
       onError: (error: Error) => {
@@ -86,6 +88,7 @@ export const useAllManufacturers = () => {
   return useQuery({
     queryKey: ['manufacturers'],
     queryFn: manufacturerApi.getAllManufacturers,
+    retry: 1,
     meta: {
       onError: (error: Error) => {
         toast.error(`Failed to fetch manufacturers: ${error.message || 'Unknown error'}`);
