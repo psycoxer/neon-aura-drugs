@@ -1,3 +1,4 @@
+
 import { 
   DrugListItem, 
   DrugFull, 
@@ -139,8 +140,8 @@ export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
     parsedSideEffects.push(
       ...sideEffectsArray.map(effect => ({
         name: effect,
-        severity: effect.toLowerCase().includes('severe') ? 'severe' : 
-                 effect.toLowerCase().includes('mild') ? 'mild' : 'moderate',
+        severity: (effect.toLowerCase().includes('severe') ? 'severe' : 
+                 effect.toLowerCase().includes('mild') ? 'mild' : 'moderate') as "mild" | "moderate" | "severe",
         frequency: 'Not specified'
       }))
     );
@@ -161,21 +162,21 @@ export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
     name: drug.Name,
     category: drug.Class || 'Unclassified',
     description: drug.History || 'No description available for this drug.',
-    mechanismOfAction: 'Specific mechanism of action details not available in API.',
-    indications: ['Pain relief', 'Fever reduction'], // Placeholder - API doesn't provide this
-    contraindications: ['Hypersensitivity to the active ingredient'], // Placeholder - API doesn't provide this
+    mechanismOfAction: 'Not specified in API',
+    indications: [], // API doesn't provide this information
+    contraindications: [], // API doesn't provide this information
     sideEffects: parsedSideEffects.length > 0 ? parsedSideEffects : [
       { name: 'Information not available', severity: 'moderate', frequency: 'N/A' }
     ],
     interactions: [
-      { drug: 'Other medications', effect: 'May interact with other medications', severity: 'moderate' }
+      { drug: 'Information not available', effect: 'Not specified in API', severity: 'moderate' }
     ],
     dosages: [
-      { form: 'Tablet', strength: 'Standard dose', instructions: 'Take as directed by healthcare provider', maxDose: 'Consult doctor' }
+      { form: 'Not specified', strength: 'Not specified', instructions: 'Not specified', maxDose: 'Not specified' }
     ],
     pregnancy: 'Not specified in API',
     halfLife: 'Not specified in API',
-    prescriptionRequired: drug.Class?.toLowerCase().includes('prescription') || false,
+    prescriptionRequired: false,
     manufacturer: manufacturerName,
     molecules: moleculeInfo,
     origin: drug.Origin || 'Not specified'
@@ -188,22 +189,25 @@ const mockDrugList: DrugListItem[] = [
     DrugID: 1,
     Name: "Aspirin",
     Class: "NSAID",
-    MoleculeCount: 1,
-    PrimaryMolecule: "C9H8O4"
+    Origin: "Synthetic",
+    History: "Aspirin, also known as acetylsalicylic acid (ASA), is a medication used to reduce pain, fever, or inflammation.",
+    SideEffects: "Stomach irritation, mild headache, nausea"
   },
   {
     DrugID: 2,
     Name: "Ibuprofen",
     Class: "NSAID",
-    MoleculeCount: 1,
-    PrimaryMolecule: "C13H18O2"
+    Origin: "Synthetic",
+    History: "Ibuprofen is a nonsteroidal anti-inflammatory drug (NSAID) used for relieving pain, helping with fever and reducing inflammation.",
+    SideEffects: "Stomach pain, heartburn, dizziness, mild headache"
   },
   {
     DrugID: 3,
     Name: "Paracetamol",
     Class: "Analgesic",
-    MoleculeCount: 1,
-    PrimaryMolecule: "C8H9NO2"
+    Origin: "Synthetic",
+    History: "Paracetamol, also known as acetaminophen, is a medication used to treat pain and fever.",
+    SideEffects: "Rare allergic reactions, severe liver damage with overdose"
   }
 ];
 
@@ -231,13 +235,6 @@ const mockDrugDetails: DrugFull = {
     {
       UsageID: 1,
       Region: "Global"
-    }
-  ],
-  Sources: [
-    {
-      SourceID: 1,
-      Name: "Chemical Synthesis",
-      Type: "Laboratory"
     }
   ]
 };

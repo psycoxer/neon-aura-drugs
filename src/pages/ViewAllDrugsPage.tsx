@@ -26,11 +26,11 @@ const ViewAllDrugsPage: React.FC = () => {
     id: drug.DrugID.toString(),
     name: drug.Name,
     category: drug.Class || 'Unclassified',
-    primaryMolecule: drug.PrimaryMolecule || 'Unknown',
-    moleculeCount: drug.MoleculeCount || 0,
+    primaryMolecule: 'Not available in list view',
+    moleculeCount: 0,
     warning: (drug.Class && drug.Class.toLowerCase().includes('nsaid')) || 
              (drug.Class && drug.Class.toLowerCase().includes('opioid')),
-    interactions: Math.floor(Math.random() * 10) // Placeholder
+    interactions: 0
   });
 
   // Fallback mock data in case API fails
@@ -39,43 +39,25 @@ const ViewAllDrugsPage: React.FC = () => {
       DrugID: 1,
       Name: "Aspirin",
       Class: "NSAID",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C9H8O4"
+      Origin: "Synthetic",
+      History: "Aspirin history",
+      SideEffects: "Stomach irritation, nausea"
     },
     {
       DrugID: 2,
       Name: "Ibuprofen",
       Class: "NSAID",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C13H18O2"
+      Origin: "Synthetic",
+      History: "Ibuprofen history",
+      SideEffects: "Stomach pain, dizziness"
     },
     {
       DrugID: 3,
       Name: "Paracetamol",
       Class: "Analgesic",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C8H9NO2"
-    },
-    {
-      DrugID: 4,
-      Name: "Lipitor",
-      Class: "Statin",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C33H35FN2O5"
-    },
-    {
-      DrugID: 5,
-      Name: "Prozac",
-      Class: "SSRI",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C17H18F3NO"
-    },
-    {
-      DrugID: 6,
-      Name: "Xanax",
-      Class: "Benzodiazepine",
-      MoleculeCount: 1,
-      PrimaryMolecule: "C17H13ClN4"
+      Origin: "Synthetic",
+      History: "Paracetamol history",
+      SideEffects: "Rare allergic reactions"
     }
   ];
 

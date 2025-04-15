@@ -1,29 +1,12 @@
+
 import React from 'react';
-import { ArrowLeft, Pill, FileText, AlertCircle, Thermometer, Heart, Clock, Shield, Building, TestTube } from 'lucide-react';
+import { ArrowLeft, Pill, FileText, AlertCircle, Building, TestTube, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
-
-interface SideEffect {
-  name: string;
-  severity: 'mild' | 'moderate' | 'severe';
-  frequency: string;
-}
-
-interface Interaction {
-  drug: string;
-  effect: string;
-  severity: 'mild' | 'moderate' | 'severe';
-}
-
-interface Dosage {
-  form: string;
-  strength: string;
-  instructions: string;
-  maxDose: string;
-}
+import { SideEffect } from '@/types/drug';
 
 interface DrugDetailProps {
   drug: {
@@ -31,15 +14,7 @@ interface DrugDetailProps {
     name: string;
     category: string;
     description: string;
-    mechanismOfAction: string;
-    indications: string[];
-    contraindications: string[];
     sideEffects: SideEffect[];
-    interactions: Interaction[];
-    dosages: Dosage[];
-    pregnancy: string;
-    halfLife: string;
-    prescriptionRequired: boolean;
     manufacturer?: string;
     molecules?: string;
     origin?: string;
@@ -56,9 +31,7 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
     }
   };
 
-  const hasInteractions = drug.interactions && drug.interactions.length > 0;
   const hasSideEffects = drug.sideEffects && drug.sideEffects.length > 0;
-  const hasDosages = drug.dosages && drug.dosages.length > 0;
 
   return (
     <div className="space-y-6">
@@ -73,11 +46,6 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
           <Badge variant="outline" className="bg-black/20 border-neon-purple/50 text-neon-purple">
             {drug.category}
           </Badge>
-          {drug.prescriptionRequired && (
-            <Badge variant="outline" className="bg-black/20 border-amber-500/50 text-amber-300">
-              Prescription Only
-            </Badge>
-          )}
         </div>
       </div>
 
@@ -88,16 +56,10 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full glass-morphism border-white/10 bg-black/20">
           <TabsTrigger value="overview" className="data-[state=active]:bg-neon-purple/20">Overview</TabsTrigger>
-          {hasDosages && (
-            <TabsTrigger value="dosage" className="data-[state=active]:bg-neon-blue/20">Dosage</TabsTrigger>
-          )}
           {hasSideEffects && (
             <TabsTrigger value="sideEffects" className="data-[state=active]:bg-neon-pink/20">Side Effects</TabsTrigger>
           )}
-          {hasInteractions && (
-            <TabsTrigger value="interactions" className="data-[state=active]:bg-neon-green/20">Interactions</TabsTrigger>
-          )}
-          <TabsTrigger value="origin" className="data-[state=active]:bg-amber-500/20">Origin</TabsTrigger>
+          <TabsTrigger value="origin" className="data-[state=active]:bg-amber-500/20">Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -105,86 +67,20 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
             <div className="glass-morphism rounded-xl p-6 border-white/10 neon-glow-purple">
               <div className="flex items-center mb-4">
                 <Pill className="mr-2 text-neon-purple" size={20} />
-                <h3 className="text-lg font-medium">Mechanism of Action</h3>
+                <h3 className="text-lg font-medium">Classification</h3>
               </div>
-              <p className="text-muted-foreground">{drug.mechanismOfAction}</p>
+              <p className="text-muted-foreground">{drug.category || 'Not specified'}</p>
             </div>
 
             <div className="glass-morphism rounded-xl p-6 border-white/10 neon-glow-blue">
               <div className="flex items-center mb-4">
                 <FileText className="mr-2 text-neon-blue" size={20} />
-                <h3 className="text-lg font-medium">Indications</h3>
+                <h3 className="text-lg font-medium">Origin</h3>
               </div>
-              <ul className="space-y-2 text-muted-foreground">
-                {drug.indications.map((indication, i) => (
-                  <li key={i} className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>{indication}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="glass-morphism rounded-xl p-6 border-white/10 neon-glow-pink">
-              <div className="flex items-center mb-4">
-                <AlertCircle className="mr-2 text-neon-pink" size={20} />
-                <h3 className="text-lg font-medium">Contraindications</h3>
-              </div>
-              <ul className="space-y-2 text-muted-foreground">
-                {drug.contraindications.map((contraindication, i) => (
-                  <li key={i} className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>{contraindication}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="glass-morphism rounded-xl p-6 border-white/10 neon-glow-green">
-              <div className="flex items-center mb-4">
-                <Shield className="mr-2 text-neon-green" size={20} />
-                <h3 className="text-lg font-medium">Important Information</h3>
-              </div>
-              <div className="space-y-4 text-muted-foreground">
-                <div className="flex items-center">
-                  <Thermometer className="mr-2 text-neon-blue" size={16} />
-                  <span className="font-medium text-white">Pregnancy Category:</span>
-                  <span className="ml-2">{drug.pregnancy}</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock className="mr-2 text-neon-pink" size={16} />
-                  <span className="font-medium text-white">Half Life:</span>
-                  <span className="ml-2">{drug.halfLife}</span>
-                </div>
-                <div className="flex items-center">
-                  <Heart className="mr-2 text-neon-purple" size={16} />
-                  <span className="font-medium text-white">Prescription:</span>
-                  <span className="ml-2">{drug.prescriptionRequired ? 'Required' : 'Not Required'}</span>
-                </div>
-              </div>
+              <p className="text-muted-foreground">{drug.origin || 'Not specified'}</p>
             </div>
           </div>
         </TabsContent>
-
-        {hasDosages && (
-          <TabsContent value="dosage">
-            <div className="space-y-6 mt-6">
-              {drug.dosages.map((dosage, i) => (
-                <div key={i} className="glass-morphism rounded-xl p-6 border-white/10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-medium">{dosage.form}</h3>
-                      <p className="text-neon-blue font-medium">{dosage.strength}</p>
-                    </div>
-                    <Badge variant="outline" className="bg-black/20">Max: {dosage.maxDose}</Badge>
-                  </div>
-                  <Separator className="my-4 bg-white/10" />
-                  <p className="text-muted-foreground">{dosage.instructions}</p>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-        )}
 
         {hasSideEffects && (
           <TabsContent value="sideEffects">
@@ -195,35 +91,9 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
                   {drug.sideEffects.map((effect, i) => (
                     <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                       <span>{effect.name}</span>
-                      <div className="flex items-center space-x-3">
-                        <Badge className={getSeverityColor(effect.severity)}>
-                          {effect.severity}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">{effect.frequency}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        )}
-
-        {hasInteractions && (
-          <TabsContent value="interactions">
-            <div className="space-y-4 mt-6">
-              <div className="glass-morphism rounded-xl p-6 border-white/10">
-                <h3 className="text-lg font-medium mb-4">Drug Interactions</h3>
-                <div className="space-y-4">
-                  {drug.interactions.map((interaction, i) => (
-                    <div key={i} className="glass-morphism rounded-lg p-4 border-white/5">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-neon-blue">{interaction.drug}</h4>
-                        <Badge className={getSeverityColor(interaction.severity)}>
-                          {interaction.severity}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{interaction.effect}</p>
+                      <Badge className={getSeverityColor(effect.severity)}>
+                        {effect.severity}
+                      </Badge>
                     </div>
                   ))}
                 </div>
@@ -264,18 +134,6 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
                   )}
                 </div>
               </div>
-              
-              {drug.origin && (
-                <>
-                  <Separator className="my-4 bg-white/10" />
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Origin</h3>
-                    <div className="glass-morphism rounded-lg p-4 border-white/5">
-                      <p className="text-muted-foreground">{drug.origin}</p>
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
         </TabsContent>
