@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { ArrowLeft, Pill, FileText, AlertCircle, Thermometer, Heart, Clock, Shield, Building, Flask } from 'lucide-react';
+import { ArrowLeft, Pill, FileText, AlertCircle, Thermometer, Heart, Clock, Shield, Building, TestTube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,6 +40,9 @@ interface DrugDetailProps {
     pregnancy: string;
     halfLife: string;
     prescriptionRequired: boolean;
+    manufacturer?: string;
+    molecules?: string;
+    origin?: string;
   };
 }
 
@@ -54,7 +56,6 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
     }
   };
 
-  // Check if essential data is available
   const hasInteractions = drug.interactions && drug.interactions.length > 0;
   const hasSideEffects = drug.sideEffects && drug.sideEffects.length > 0;
   const hasDosages = drug.dosages && drug.dosages.length > 0;
@@ -255,7 +256,7 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   {drug.molecules ? (
                     <div className="glass-morphism rounded-lg p-4 border-white/5 flex items-center">
-                      <Flask className="mr-3 text-neon-green" size={18} />
+                      <TestTube className="mr-3 text-neon-green" size={18} />
                       <span>{drug.molecules}</span>
                     </div>
                   ) : (
@@ -263,6 +264,18 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
                   )}
                 </div>
               </div>
+              
+              {drug.origin && (
+                <>
+                  <Separator className="my-4 bg-white/10" />
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Origin</h3>
+                    <div className="glass-morphism rounded-lg p-4 border-white/5">
+                      <p className="text-muted-foreground">{drug.origin}</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </TabsContent>

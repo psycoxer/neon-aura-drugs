@@ -1,4 +1,3 @@
-
 import { 
   DrugListItem, 
   DrugFull, 
@@ -8,7 +7,7 @@ import {
   ManufacturerCreate, 
   CreateResponse 
 } from '@/types/api';
-import { DrugUI } from '@/types/drug';
+import { DrugUI, SideEffect } from '@/types/drug';
 
 const API_URL = 'http://localhost:5000';
 
