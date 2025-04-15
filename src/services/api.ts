@@ -175,53 +175,15 @@ export const manufacturerApi = {
 
 // API mapping helpers
 export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
-  // Parse side effects from the string if available
-  const parsedSideEffects: SideEffect[] = [];
-  if (drug.SideEffects) {
-    const sideEffectsArray = drug.SideEffects.split(/[.,;]/).filter(Boolean).map(s => s.trim());
-    parsedSideEffects.push(
-      ...sideEffectsArray.map(effect => ({
-        name: effect,
-        severity: (effect.toLowerCase().includes('severe') ? 'severe' : 
-                 effect.toLowerCase().includes('mild') ? 'mild' : 'moderate') as "mild" | "moderate" | "severe",
-        frequency: 'Not specified'
-      }))
-    );
-  }
-
-  // Create manufacturer info
-  const manufacturerName = drug.Manufacturers && drug.Manufacturers.length > 0 
-    ? drug.Manufacturers[0].Name 
-    : undefined;
-
-  // Create molecule info
-  const moleculeInfo = drug.Molecules && drug.Molecules.length > 0 
-    ? drug.Molecules.map(m => m.ChemicalFormula).join(', ')
-    : undefined;
-
   return {
     id: drug.DrugID.toString(),
     name: drug.Name,
     category: drug.Class || 'Unclassified',
     description: drug.History || 'No description available for this drug.',
-    mechanismOfAction: 'Not specified in API',
-    indications: [], // API doesn't provide this information
-    contraindications: [], // API doesn't provide this information
-    sideEffects: parsedSideEffects.length > 0 ? parsedSideEffects : [
-      { name: 'Information not available', severity: 'moderate', frequency: 'N/A' }
-    ],
-    interactions: [
-      { drug: 'Information not available', effect: 'Not specified in API', severity: 'moderate' }
-    ],
-    dosages: [
-      { form: 'Not specified', strength: 'Not specified', instructions: 'Not specified', maxDose: 'Not specified' }
-    ],
-    pregnancy: 'Not specified in API',
-    halfLife: 'Not specified in API',
-    prescriptionRequired: false,
-    manufacturer: manufacturerName,
-    molecules: moleculeInfo,
-    origin: drug.Origin || 'Not specified'
+    origin: drug.Origin || 'Not specified',
+    sideEffects: drug.SideEffects || 'No side effects information available',
+    manufacturers: drug.Manufacturers,
+    molecules: drug.Molecules
   };
 };
 

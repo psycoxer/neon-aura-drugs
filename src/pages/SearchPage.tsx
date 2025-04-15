@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -24,7 +23,6 @@ const SearchPage: React.FC = () => {
     setSearchQuery(query);
     setActiveFilters(filters);
     
-    // Update URL with search parameters
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     if (filters.length > 0) params.set('filters', filters.join(','));
@@ -50,6 +48,13 @@ const SearchPage: React.FC = () => {
     });
   }, [drugs, searchQuery, activeFilters]);
   
+  const displayedDrugs = filteredDrugs?.map(drug => ({
+    id: drug.DrugID,
+    name: drug.Name, 
+    category: drug.Class || 'Unclassified',
+    description: drug.History || 'No description available'
+  })) || [];
+
   if (isLoading) {
     return (
       <Layout>
@@ -123,14 +128,13 @@ const SearchPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDrugs.map(drug => (
+            {displayedDrugs.map(drug => (
               <DrugCard
-                key={drug.DrugID}
-                id={drug.DrugID.toString()}
-                name={drug.Name}
-                category={drug.Class || 'Unclassified'}
-                primaryMolecule={drug.PrimaryMolecule}
-                moleculeCount={drug.MoleculeCount}
+                key={drug.id}
+                id={drug.id}
+                name={drug.name}
+                category={drug.category}
+                description={drug.description}
               />
             ))}
           </div>

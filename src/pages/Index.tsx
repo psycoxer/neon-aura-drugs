@@ -1,205 +1,223 @@
-
-import React from 'react';
-import Layout from '@/components/Layout';
-import SearchBar from '@/components/SearchBar';
-import StatCard from '@/components/StatCard';
-import DrugCard from '@/components/DrugCard';
-import { Database, PlusSquare, Pill, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useAllDrugs } from '@/hooks/useDrugs';
-import { toast } from 'sonner';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DrugListItem } from '@/types/api';
+import Layout from '@/components/Layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAllDrugs } from '@/hooks/useDrugs';
+import { Pill, Search, Database, PlusCircle, ArrowRight, AlertTriangle } from 'lucide-react';
 
-const Index: React.FC = () => {
-  const { data: drugs, isLoading, isError } = useAllDrugs();
-  
-  const handleSearch = (query: string, filters: string[]) => {
-    console.log('Search:', query, 'Filters:', filters);
-    toast.info(`Searching for "${query}" with filters: ${filters.join(', ') || 'none'}`);
-    // In a real app, this would trigger filtered API calls
-  };
+const Index = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const { data: drugsData, isLoading, isError } = useAllDrugs();
 
-  const mapDrugToCard = (drug: DrugListItem) => ({
-    id: drug.DrugID.toString(),
+  // Map for recent drugs
+  const recentDrugs = drugsData?.slice(0, 4).map(drug => ({
+    id: drug.DrugID,
     name: drug.Name,
     category: drug.Class || 'Unclassified',
-    primaryMolecule: drug.PrimaryMolecule || 'Unknown',
-    moleculeCount: drug.MoleculeCount || 0,
-    // Add a safety check for Class property when determining warning
-    warning: (drug.Class && drug.Class.toLowerCase().includes('nsaid')) || 
-             (drug.Class && drug.Class.toLowerCase().includes('opioid')),
-    interactions: Math.floor(Math.random() * 20) // Placeholder - the API doesn't provide this info
-  });
+    description: drug.History || 'No description available',
+  })) || [];
 
-  const mockDrugs = [
-    {
-      id: '1',
-      name: 'Lipitor',
-      category: 'Cardiovascular',
-      description: 'Atorvastatin (Lipitor) is used to lower blood cholesterol and reduce the risk of cardiovascular disease.',
-      warning: false,
-      interactions: 12
-    },
-    {
-      id: '2',
-      name: 'Prozac',
-      category: 'Antidepressant',
-      description: 'Fluoxetine (Prozac) is a selective serotonin reuptake inhibitor (SSRI) used to treat depression, OCD, and panic attacks.',
-      warning: true,
-      interactions: 25
-    },
-    {
-      id: '3',
-      name: 'Amoxicillin',
-      category: 'Antibiotic',
-      description: 'Amoxicillin is a penicillin antibiotic used to treat bacterial infections in many different parts of the body.',
-      warning: false,
-      interactions: 8
-    },
-    {
-      id: '4',
-      name: 'Ibuprofen',
-      category: 'Analgesic',
-      description: 'Ibuprofen is a nonsteroidal anti-inflammatory drug (NSAID) used to reduce inflammation and treat pain or fever.',
-      warning: false,
-      interactions: 15
-    },
-    {
-      id: '5',
-      name: 'Xanax',
-      category: 'Anxiolytic',
-      description: 'Alprazolam (Xanax) is a benzodiazepine used to treat anxiety disorders and panic disorder.',
-      warning: true,
-      interactions: 22
-    },
-    {
-      id: '6',
-      name: 'Tamiflu',
-      category: 'Antiviral',
-      description: 'Oseltamivir (Tamiflu) is used to treat symptoms caused by the flu virus. It helps make symptoms less severe and shortens recovery time.',
-      warning: false,
-      interactions: 6
-    }
-  ];
-
-  const renderDrugGrid = () => {
-    if (isLoading) {
-      return (
-        <div className="text-center py-8">
-          <div className="animate-spin w-8 h-8 border-4 border-neon-purple border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading drugs database...</p>
-        </div>
-      );
-    }
-
-    if (isError) {
-      return (
-        <div className="glass-morphism p-6 text-center">
-          <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">Could not connect to the API</h3>
-          <p className="text-muted-foreground mb-4">
-            Displaying mock data instead. Please check if the API server is running at http://localhost:5000.
-          </p>
-          <Button 
-            variant="outline" 
-            className="bg-white/5 hover:bg-white/10"
-            onClick={() => window.location.reload()}
-          >
-            Try Again
-          </Button>
-        </div>
-      );
-    }
-
-    // Add a safety check before mapping drugs
-    const drugData = drugs?.map(mapDrugToCard) || mockDrugs;
-    
-    return (
-      <>
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Recently Updated</h2>
-            <Button variant="link" className="text-neon-purple" asChild>
-              <Link to="/drugs">View All</Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {drugData.slice(0, 3).map(drug => (
-              <DrugCard key={drug.id} {...drug} />
-            ))}
-          </div>
-        </div>
-
-        <Separator className="my-8 bg-white/5" />
-
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Commonly Searched</h2>
-            <Button variant="link" className="text-neon-purple" asChild>
-              <Link to="/drugs">View All</Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {drugData.slice(Math.max(0, drugData.length - 3)).map(drug => (
-              <DrugCard key={drug.id} {...drug} />
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  };
+  // Filter drugs based on search query
+  const filteredDrugs = drugsData?.filter(drug => 
+    drug.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (drug.Class && drug.Class.toLowerCase().includes(searchQuery.toLowerCase()))
+  ).slice(0, 5) || [];
 
   return (
     <Layout>
-      <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-6">
+        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Drug Database</h1>
-            <p className="text-muted-foreground mt-1">Comprehensive information on medications and pharmaceuticals</p>
+            <h1 className="text-2xl font-bold tracking-tight">Pharmaceutical Database</h1>
+            <p className="text-muted-foreground">
+              Explore and manage pharmaceutical drug information
+            </p>
           </div>
-          <Link to="/drug/new">
-            <Button className="bg-neon-purple hover:bg-neon-purple/90 self-start">
-              <PlusSquare size={16} className="mr-2" />
-              New Entry
-            </Button>
-          </Link>
+          <div className="flex items-center space-x-2">
+            <Link to="/drug/new">
+              <Button className="bg-neon-purple hover:bg-neon-purple/90">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add New Drug
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        <SearchBar onSearch={handleSearch} />
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard 
-            title="Total Drugs" 
-            value={drugs ? drugs.length.toString() : "Loading..."} 
-            icon={<Database size={20} className="text-neon-purple" />} 
-            change={drugs ? { value: "+124 this month", positive: true } : undefined}
-            glowColor="purple"
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search drugs by name or class..."
+            className="pl-8 bg-white/5"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <StatCard 
-            title="Categories" 
-            value={drugs ? new Set(drugs.map(d => d.Class || 'Unclassified')).size.toString() : "Loading..."} 
-            icon={<Pill size={20} className="text-neon-blue" />}
-            glowColor="blue"
-          />
-          <StatCard 
-            title="Interactions" 
-            value="5,241" 
-            icon={<AlertTriangle size={20} className="text-neon-pink" />}
-            change={{ value: "+42 this month", positive: false }}
-            glowColor="pink"
-          />
-          <StatCard 
-            title="New Additions" 
-            value="347" 
-            icon={<PlusSquare size={20} className="text-neon-green" />}
-            change={{ value: "+18% vs last month", positive: true }}
-            glowColor="green"
-          />
+          {searchQuery && filteredDrugs.length > 0 && (
+            <div className="absolute z-10 mt-1 w-full rounded-md bg-black/90 border border-white/10 shadow-lg">
+              <ul className="py-1">
+                {filteredDrugs.map((drug) => (
+                  <li key={drug.DrugID} className="px-3 py-2 hover:bg-white/5">
+                    <Link to={`/drug/${drug.DrugID}`} className="block">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-medium text-white">{drug.Name}</span>
+                          {drug.Class && (
+                            <span className="ml-2 text-xs text-muted-foreground">{drug.Class}</span>
+                          )}
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+                {filteredDrugs.length > 4 && (
+                  <li className="px-3 py-2 text-center text-sm text-muted-foreground">
+                    <Link to="/search" className="hover:text-neon-purple">
+                      View all results
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
 
-        {renderDrugGrid()}
+        <Tabs defaultValue="recent" className="space-y-4">
+          <TabsList className="bg-black/20 border border-white/10">
+            <TabsTrigger value="recent" className="data-[state=active]:bg-neon-purple/20">
+              Recent Drugs
+            </TabsTrigger>
+            <TabsTrigger value="actions" className="data-[state=active]:bg-neon-blue/20">
+              Quick Actions
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="recent" className="space-y-4">
+            <h2 className="text-xl font-semibold mb-4">Recently Added Drugs</h2>
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center h-[200px]">
+                <div className="text-center">
+                  <div className="animate-spin w-8 h-8 border-4 border-neon-purple border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading drugs...</p>
+                </div>
+              </div>
+            ) : isError ? (
+              <div className="glass-morphism p-6 text-center">
+                <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Error Loading Drugs</h3>
+                <p className="text-muted-foreground mb-4">
+                  Failed to fetch drug data from API.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="bg-white/5 hover:bg-white/10"
+                  onClick={() => window.location.reload()}
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : recentDrugs.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {recentDrugs.map((drug) => (
+                  <Card key={drug.id} className="bg-black/40 border-white/5 hover:border-white/10 transition-colors">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">{drug.name}</CardTitle>
+                      <CardDescription className="flex items-center">
+                        <Pill className="mr-1 h-3 w-3" />
+                        {drug.category}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {drug.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="ghost" size="sm" className="w-full" asChild>
+                        <Link to={`/drug/${drug.id}`}>
+                          View Details
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-morphism p-6 text-center">
+                <Database className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Drugs Found</h3>
+                <p className="text-muted-foreground mb-4">
+                  There are no drugs in the database yet.
+                </p>
+                <Button asChild>
+                  <Link to="/drug/new">Add Your First Drug</Link>
+                </Button>
+              </div>
+            )}
+            
+            {recentDrugs.length > 0 && (
+              <div className="flex justify-center mt-4">
+                <Button variant="outline" asChild>
+                  <Link to="/drugs">View All Drugs</Link>
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="actions" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="bg-black/40 border-white/5">
+                <CardHeader>
+                  <CardTitle>Add New Drug</CardTitle>
+                  <CardDescription>
+                    Create a new drug entry in the database
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p className="text-sm text-muted-foreground">
+                    Add detailed information about a pharmaceutical drug including its classification, 
+                    side effects, and manufacturer details.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full bg-neon-purple hover:bg-neon-purple/90" asChild>
+                    <Link to="/drug/new">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Drug
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              <Card className="bg-black/40 border-white/5">
+                <CardHeader>
+                  <CardTitle>Advanced Search</CardTitle>
+                  <CardDescription>
+                    Find drugs with specific criteria
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p className="text-sm text-muted-foreground">
+                    Search for drugs by name, classification, manufacturer, or other properties 
+                    with advanced filtering options.
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full bg-neon-blue hover:bg-neon-blue/90" asChild>
+                    <Link to="/search">
+                      <Search className="mr-2 h-4 w-4" />
+                      Advanced Search
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCreateDrug, useAllManufacturers } from '@/hooks/useDrugs';
 import { DrugCreate, Manufacturer } from '@/types/api';
-import { ArrowLeft, PlusSquare, Factory, Flask, TestTube } from 'lucide-react';
+import { ArrowLeft, PlusSquare, Factory, TestTube } from 'lucide-react';
 import {
   Form,
   FormControl,
