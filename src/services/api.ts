@@ -1,4 +1,3 @@
-
 import { 
   DrugListItem, 
   DrugFull, 
@@ -58,12 +57,55 @@ export const drugApi = {
   
   // Create a new drug
   createDrug: async (drugData: DrugCreate): Promise<CreateResponse> => {
-    const response = await fetch(`${API_URL}/drugs`, {
+    // First, create the drug
+    const drugResponse = await fetch(`${API_URL}/drugs`, {
       ...fetchOptions,
       method: 'POST',
-      body: JSON.stringify(drugData),
+      body: JSON.stringify({
+        Name: drugData.Name,
+        Origin: drugData.Origin,
+        Class: drugData.Class,
+        History: drugData.History,
+        SideEffects: drugData.SideEffects,
+      }),
     });
-    return handleResponse(response);
+    
+    const drugResult = await handleResponse(drugResponse);
+    const newDrugId = drugResult.DrugID;
+    
+    // Then, if there are manufacturer IDs, associate them with the drug
+    if (drugData.ManufacturerIDs && drugData.ManufacturerIDs.length > 0) {
+      try {
+        await Promise.all(drugData.ManufacturerIDs.map(manufacturerId => 
+          fetch(`${API_URL}/drugs/${newDrugId}/manufacturers`, {
+            ...fetchOptions,
+            method: 'POST',
+            body: JSON.stringify({ manufacturer_id: manufacturerId }),
+          }).then(response => handleResponse(response))
+        ));
+      } catch (error) {
+        console.error('Error associating manufacturers with drug:', error);
+        // Continue even if manufacturer association fails
+      }
+    }
+    
+    // If there are molecule IDs, associate them with the drug
+    if (drugData.MoleculeIDs && drugData.MoleculeIDs.length > 0) {
+      try {
+        await Promise.all(drugData.MoleculeIDs.map(moleculeId => 
+          fetch(`${API_URL}/drugs/${newDrugId}/molecules`, {
+            ...fetchOptions,
+            method: 'POST',
+            body: JSON.stringify({ molecule_id: moleculeId }),
+          }).then(response => handleResponse(response))
+        ));
+      } catch (error) {
+        console.error('Error associating molecules with drug:', error);
+        // Continue even if molecule association fails
+      }
+    }
+    
+    return drugResult;
   },
   
   // Update a drug

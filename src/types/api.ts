@@ -31,6 +31,8 @@ export interface DrugCreate {
   Class?: string;
   History?: string;
   SideEffects?: string;
+  ManufacturerIDs?: number[]; // Add manufacturer IDs for association
+  MoleculeIDs?: number[]; // Add molecule IDs for association
 }
 
 // Drug Update

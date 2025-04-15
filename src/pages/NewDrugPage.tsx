@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { useCreateDrug } from '@/hooks/useDrugs';
-import { DrugCreate } from '@/types/api';
-import { ArrowLeft, PlusSquare } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useCreateDrug, useAllManufacturers } from '@/hooks/useDrugs';
+import { DrugCreate, Manufacturer } from '@/types/api';
+import { ArrowLeft, PlusSquare, Factory, Flask, TestTube } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -25,6 +26,8 @@ import { Link } from 'react-router-dom';
 const NewDrugPage: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: createDrug, isPending } = useCreateDrug();
+  const { data: manufacturers, isLoading: isLoadingManufacturers } = useAllManufacturers();
+  const [selectedManufacturers, setSelectedManufacturers] = useState<number[]>([]);
   
   const form = useForm<DrugCreate>({
     defaultValues: {
@@ -37,12 +40,26 @@ const NewDrugPage: React.FC = () => {
   });
   
   const onSubmit = (data: DrugCreate) => {
-    createDrug(data, {
+    // Add selected manufacturers to the form data
+    const drugData = {
+      ...data,
+      ManufacturerIDs: selectedManufacturers.length > 0 ? selectedManufacturers : undefined
+    };
+    
+    createDrug(drugData, {
       onSuccess: (response) => {
         toast.success(`Drug "${data.Name}" created successfully`);
         navigate(`/drug/${response.DrugID}`);
       }
     });
+  };
+
+  const handleManufacturerChange = (checked: boolean | string, id: number) => {
+    if (checked) {
+      setSelectedManufacturers(prev => [...prev, id]);
+    } else {
+      setSelectedManufacturers(prev => prev.filter(mId => mId !== id));
+    }
   };
 
   return (
@@ -159,7 +176,48 @@ const NewDrugPage: React.FC = () => {
                 )}
               />
 
-              <div className="flex justify-end space-x-4">
+              <Separator className="my-4 bg-white/10" />
+              
+              {/* Manufacturers Section */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Factory size={20} className="text-neon-blue" />
+                  <h3 className="text-lg font-medium">Manufacturers (Optional)</h3>
+                </div>
+                
+                {isLoadingManufacturers ? (
+                  <p className="text-muted-foreground">Loading manufacturers...</p>
+                ) : manufacturers && manufacturers.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {manufacturers.map((manufacturer: Manufacturer) => (
+                      <div key={manufacturer.ManufacturerID} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`manufacturer-${manufacturer.ManufacturerID}`}
+                          checked={selectedManufacturers.includes(manufacturer.ManufacturerID)}
+                          onCheckedChange={(checked) => 
+                            handleManufacturerChange(checked, manufacturer.ManufacturerID)
+                          }
+                        />
+                        <label 
+                          htmlFor={`manufacturer-${manufacturer.ManufacturerID}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {manufacturer.Name}
+                          {manufacturer.FamousFor && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              (Famous for: {manufacturer.FamousFor})
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No manufacturers available</p>
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
                 <Button
                   type="button"
                   variant="outline"
