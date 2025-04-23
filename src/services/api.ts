@@ -1,3 +1,4 @@
+
 import { 
   DrugListItem, 
   DrugFull, 
@@ -7,7 +8,7 @@ import {
   ManufacturerCreate, 
   CreateResponse 
 } from '@/types/api';
-import { DrugUI, SideEffect } from '@/types/drug';
+import { DrugUI } from '@/types/drug';
 
 const API_URL = 'http://localhost:5000';
 
@@ -175,13 +176,20 @@ export const manufacturerApi = {
 
 // API mapping helpers
 export const mapDrugFullToUI = (drug: DrugFull): DrugUI => {
+  // Parse side effects into an array by splitting on periods, commas, or semicolons
+  const sideEffectsText = drug.SideEffects || '';
+  const sideEffects = sideEffectsText
+    .split(/[.,;]/)
+    .map(effect => effect.trim())
+    .filter(effect => effect.length > 0);
+
   return {
     id: drug.DrugID.toString(),
     name: drug.Name,
     category: drug.Class || 'Unclassified',
     description: drug.History || 'No description available for this drug.',
     origin: drug.Origin || 'Not specified',
-    sideEffects: drug.SideEffects || 'No side effects information available',
+    sideEffects: sideEffects.length > 0 ? sideEffects : ['No side effects information available'],
     manufacturers: drug.Manufacturers,
     molecules: drug.Molecules
   };

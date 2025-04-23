@@ -8,7 +8,7 @@ export interface DrugUI {
   category: string;
   description: string;
   origin?: string;
-  sideEffects: string;
+  sideEffects: string[];
   manufacturers?: ManufacturerRef[];
   molecules?: Molecule[];
 }

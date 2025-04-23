@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { ArrowLeft, Pill, FileText, Building, TestTube, Map } from 'lucide-react';
+import { ArrowLeft, Pill, FileText, Building, TestTube, Map, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
-import { DrugFull, ManufacturerRef, Molecule } from '@/types/api';
+import { ManufacturerRef, Molecule } from '@/types/api';
 
 interface DrugDetailProps {
   drug: {
@@ -15,7 +15,7 @@ interface DrugDetailProps {
     category: string;
     description: string;
     origin?: string;
-    sideEffects: string;
+    sideEffects: string[];
     manufacturers?: ManufacturerRef[];
     molecules?: Molecule[];
   };
@@ -76,9 +76,14 @@ const DrugDetail: React.FC<DrugDetailProps> = ({ drug }) => {
         {hasSideEffects && (
           <TabsContent value="sideEffects">
             <div className="space-y-4 mt-6">
-              <div className="glass-morphism rounded-xl p-6 border-white/10">
-                <h3 className="text-lg font-medium mb-4">Side Effects</h3>
-                <p className="text-muted-foreground">{drug.sideEffects}</p>
+              <h3 className="text-lg font-medium mb-4">Side Effects</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {drug.sideEffects.map((effect, index) => (
+                  <div key={index} className="glass-morphism rounded-xl p-4 border-white/10 flex items-start">
+                    <AlertCircle className="mr-3 text-amber-500 mt-1" size={18} />
+                    <span className="text-muted-foreground">{effect}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </TabsContent>

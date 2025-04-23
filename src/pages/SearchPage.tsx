@@ -49,7 +49,7 @@ const SearchPage: React.FC = () => {
   }, [drugs, searchQuery, activeFilters]);
   
   const displayedDrugs = filteredDrugs?.map(drug => ({
-    id: drug.DrugID,
+    id: drug.DrugID.toString(),
     name: drug.Name, 
     category: drug.Class || 'Unclassified',
     description: drug.History || 'No description available'
