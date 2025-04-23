@@ -29,22 +29,33 @@ const NewDrugPage: React.FC = () => {
   const { data: manufacturers, isLoading: isLoadingManufacturers } = useAllManufacturers();
   const [selectedManufacturers, setSelectedManufacturers] = useState<number[]>([]);
   
-  const form = useForm<DrugCreate>({
+  const form = useForm<DrugCreate & { MolecularFormula?: string }>({
     defaultValues: {
       Name: '',
       Origin: '',
       Class: '',
       History: '',
       SideEffects: '',
+      MolecularFormula: '',
     },
   });
   
-  const onSubmit = (data: DrugCreate) => {
-    // Add selected manufacturers to the form data
-    const drugData = {
-      ...data,
-      ManufacturerIDs: selectedManufacturers.length > 0 ? selectedManufacturers : undefined
+  const onSubmit = (data: DrugCreate & { MolecularFormula?: string }) => {
+    // Build base drug data
+    const drugData: DrugCreate & { MolecularFormula?: string } = {
+      Name: data.Name,
+      Origin: data.Origin,
+      Class: data.Class,
+      History: data.History,
+      SideEffects: data.SideEffects,
+      ManufacturerIDs: selectedManufacturers.length > 0 ? selectedManufacturers : undefined,
     };
+
+    // Append the molecular formula if present
+    if (data.MolecularFormula && data.MolecularFormula.trim().length > 0) {
+      // Add as additional property for consumption (e.g., backend/intermediary layer could transform as needed)
+      (drugData as any).MolecularFormula = data.MolecularFormula.trim();
+    }
     
     createDrug(drugData, {
       onSuccess: (response) => {
@@ -125,6 +136,26 @@ const NewDrugPage: React.FC = () => {
                       </FormControl>
                       <FormDescription>
                         The source or origin of the drug
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Molecular Formula Field */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="MolecularFormula"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Molecular Formula <span className="font-normal text-muted-foreground">(optional)</span></FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., C9H8O4" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Enter the drug's main chemical formula if known. Example: <span className="font-mono">C9H8O4</span>
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
