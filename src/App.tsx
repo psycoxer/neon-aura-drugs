@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +9,7 @@ import DrugDetailPage from "./pages/DrugDetailPage";
 import SearchPage from "./pages/SearchPage";
 import ViewAllDrugsPage from "./pages/ViewAllDrugsPage";
 import NewDrugPage from "./pages/NewDrugPage";
+import EditDrugPage from "./pages/EditDrugPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +30,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/drug/:id" element={<DrugDetailPage />} />
           <Route path="/drug/new" element={<NewDrugPage />} />
+          <Route path="/drug/:id/edit" element={<EditDrugPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/drugs" element={<ViewAllDrugsPage />} />
           <Route path="*" element={<NotFound />} />

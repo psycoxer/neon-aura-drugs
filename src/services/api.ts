@@ -1,4 +1,3 @@
-
 import { 
   DrugListItem, 
   DrugFull, 
@@ -58,7 +57,7 @@ export const drugApi = {
   
   // Create a new drug
   createDrug: async (drugData: DrugCreate): Promise<CreateResponse> => {
-    // First, create the drug
+    // Only include molecule field if needed (now removed)
     const drugResponse = await fetch(`${API_URL}/drugs`, {
       ...fetchOptions,
       method: 'POST',
@@ -89,23 +88,9 @@ export const drugApi = {
         // Continue even if manufacturer association fails
       }
     }
-    
-    // If there are molecule IDs, associate them with the drug
-    if (drugData.MoleculeIDs && drugData.MoleculeIDs.length > 0) {
-      try {
-        await Promise.all(drugData.MoleculeIDs.map(moleculeId => 
-          fetch(`${API_URL}/drugs/${newDrugId}/molecules`, {
-            ...fetchOptions,
-            method: 'POST',
-            body: JSON.stringify({ molecule_id: moleculeId }),
-          }).then(response => handleResponse(response))
-        ));
-      } catch (error) {
-        console.error('Error associating molecules with drug:', error);
-        // Continue even if molecule association fails
-      }
-    }
-    
+
+    // Remove molecule association on create
+
     return drugResult;
   },
   

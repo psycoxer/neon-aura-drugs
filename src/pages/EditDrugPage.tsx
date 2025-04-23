@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useCreateDrug, useAllManufacturers } from '@/hooks/useDrugs';
-import { DrugCreate, Manufacturer } from '@/types/api';
-import { ArrowLeft, PlusSquare, Factory, TestTube } from 'lucide-react';
+import { useUpdateDrug, useDrugDetails, useAllManufacturers } from '@/hooks/useDrugs';
+import { DrugUpdate, Manufacturer } from '@/types/api';
+import { ArrowLeft, Save, Factory } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -20,43 +21,54 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
 
-const NewDrugPage: React.FC = () => {
+const EditDrugPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const drugId = Number(id);
   const navigate = useNavigate();
-  const { mutate: createDrug, isPending } = useCreateDrug();
+  const { data: drug, isLoading: isLoadingDrug } = useDrugDetails(drugId);
+  const { mutate: updateDrug, isPending } = useUpdateDrug(drugId);
   const { data: manufacturers, isLoading: isLoadingManufacturers } = useAllManufacturers();
   const [selectedManufacturers, setSelectedManufacturers] = useState<number[]>([]);
-  
-  const form = useForm<DrugCreate & { MolecularFormula?: string }>({
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
+  const form = useForm<DrugUpdate>({
     defaultValues: {
       Name: '',
       Origin: '',
       Class: '',
       History: '',
       SideEffects: '',
-      MolecularFormula: '',
     },
   });
-  
-  const onSubmit = (data: DrugCreate & { MolecularFormula?: string }) => {
-    // Build base drug data
-    const drugData: DrugCreate = {
-      Name: data.Name,
-      Origin: data.Origin,
-      Class: data.Class,
-      History: data.History,
-      SideEffects: data.SideEffects,
-      ManufacturerIDs: selectedManufacturers.length > 0 ? selectedManufacturers : undefined,
-      // Remove MoleculeIDs and MolecularFormula from creation logic
-    };
-  // We no longer process molecules when creating the drug
 
-    createDrug(drugData, {
-      onSuccess: (response) => {
-        toast.success(`Drug "${data.Name}" created successfully`);
-        navigate(`/drug/${response.DrugID}`);
-      }
+  useEffect(() => {
+    if (drug && !initialLoaded) {
+      form.reset({
+        Name: drug.name || '',
+        Origin: drug.origin || '',
+        Class: drug.category || '',
+        History: drug.description || '',
+        SideEffects: drug.sideEffects ? drug.sideEffects.join(', ') : '',
+      });
+      // Preselect manufacturers
+      setSelectedManufacturers(drug.manufacturers?.map(m => m.ManufacturerID) || []);
+      setInitialLoaded(true);
+    }
+  }, [drug, initialLoaded, form]);
+
+  const onSubmit = (data: DrugUpdate) => {
+    // Prepare update object
+    const updateData: DrugUpdate & { ManufacturerIDs?: number[] } = {
+      ...data,
+      ManufacturerIDs: selectedManufacturers.length > 0 ? selectedManufacturers : undefined,
+    };
+
+    updateDrug(updateData, {
+      onSuccess: () => {
+        toast.success(`Drug "${data.Name || ''}" updated successfully`);
+        navigate(`/drug/${drugId}`);
+      },
     });
   };
 
@@ -68,17 +80,21 @@ const NewDrugPage: React.FC = () => {
     }
   };
 
+  if (isLoadingDrug) {
+    return <div className="flex justify-center items-center min-h-screen text-muted-foreground">Loading drug details...</div>;
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/" className="text-muted-foreground hover:text-white">
+              <Link to={drugId ? `/drug/${drugId}` : '/'} className="text-muted-foreground hover:text-white">
                 <ArrowLeft size={20} />
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold text-white">Add New Drug</h1>
+            <h1 className="text-2xl font-bold text-white">Edit Drug</h1>
           </div>
         </div>
 
@@ -131,26 +147,6 @@ const NewDrugPage: React.FC = () => {
                       </FormControl>
                       <FormDescription>
                         The source or origin of the drug
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Molecular Formula Field */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="MolecularFormula"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Molecular Formula <span className="font-normal text-muted-foreground">(optional)</span></FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., C9H8O4" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the drug's main chemical formula if known. Example: <span className="font-mono">C9H8O4</span>
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -256,8 +252,8 @@ const NewDrugPage: React.FC = () => {
                   className="bg-neon-purple hover:bg-neon-purple/90"
                   disabled={isPending}
                 >
-                  <PlusSquare size={16} className="mr-2" />
-                  {isPending ? 'Adding...' : 'Add Drug'}
+                  <Save size={16} className="mr-2" />
+                  {isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </form>
@@ -268,4 +264,4 @@ const NewDrugPage: React.FC = () => {
   );
 };
 
-export default NewDrugPage;
+export default EditDrugPage;
